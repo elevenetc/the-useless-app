@@ -1,6 +1,6 @@
 package com.elevenetc.the.useless.app
 
-fun <T> List<T>.forRandom(handler: (T) -> Unit) {
+fun <T> Collection<T>.forRandom(handler: (T) -> Unit) {
     var i = this.size - 1
 
     val list = mutableListOf<T>()

@@ -1,7 +1,6 @@
 package com.elevenetc.the.useless.app
 
 import android.util.Log
-import kotlin.random.Random
 
 
 object MathUtils {
@@ -29,15 +28,8 @@ object MathUtils {
 
                     if (random.isEmpty()) continue
 
-                    val rndIdx = Random.nextInt(random.size)
-                    val cell = random.toList()[rndIdx]
-
-                    val newId = id + 1
-
-                    cell.id = newId
-                    if (fill(m, cell)) {
-                        result.add(cell)
-                        id = newId
+                    if (fillRandom(m, result, random, id)) {
+                        id++
                     }
                 }
             }
@@ -46,6 +38,20 @@ object MathUtils {
         //clearIntersected(result)
 
         return result
+    }
+
+    fun fillRandom(m: Array<Array<Boolean>>, result: MutableSet<Rect>, random: Set<Rect>, id: Int): Boolean {
+        var filled = false
+        random.forRandom { cell ->
+            if (fill(m, cell)) {
+                cell.id = id
+                result.add(cell)
+                filled = true
+                return@forRandom
+            }
+        }
+
+        return filled
     }
 
     fun checkIfAvailable(m: Array<Array<Boolean>>, cell: Rect): Boolean {
