@@ -14,6 +14,8 @@ data class Rect(
 
     var id: Int = -1
 
+    constructor(width: Int, height: Int) : this(0, 0, width, height)
+
     /**
      * A helper class for flattened rectange pattern recognition. A separate
      * class to avoid an initialization dependency on a regular expression

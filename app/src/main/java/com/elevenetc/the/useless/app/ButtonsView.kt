@@ -12,12 +12,14 @@ class ButtonsView : ViewGroup {
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
 
+    val debug = Debug(rects = true)
+
     init {
         setBackgroundColor(Color.WHITE)
     }
 
-    val minButtonWidth = 100
-    val minButtonHeight = 50
+    val minButtonWidth = 180
+    val minButtonHeight = 90
     var screenWidth = 0
     var screenHeight = 0
     var rows = 0
@@ -59,8 +61,8 @@ class ButtonsView : ViewGroup {
 
         rects = MathUtils.generate(
             MathUtils.genMatrix(rows, cols, true),
-            Rect(0, 0, 4, 4),
-            Rect(0, 0, 1, 1)
+            Rect(3, 2),
+            Rect(1, 1)
         )
 
         if (rects.isEmpty()) {
@@ -77,21 +79,27 @@ class ButtonsView : ViewGroup {
         val wSize = width / (cols)
         val hSize = height / (rows)
 
-        dragGrid(width, height, wSize, hSize, canvas)
+        if (debug.grid)
+            dragGrid(width, height, wSize, hSize, canvas)
 
-        for ((index, it) in rects.withIndex()) {
-            val left = it.left * wSize
-            val top = it.top * hSize
-            val right = it.right * wSize
-            val bottom = it.bottom * hSize
-            canvas.drawRect(left, top, right, bottom, alphaFill)
-            canvas.drawRect(left, top, right, bottom, stroke)
-            //canvas.drawText("${it.id}: w:${it.width()} h:${it.height()} area:${it.area()}", left + 40, top + 80, black)
-        }
+        if (debug.rects)
+            for ((index, it) in rects.withIndex()) {
+                val left = it.left * wSize
+                val top = it.top * hSize
+                val right = it.right * wSize
+                val bottom = it.bottom * hSize
+                canvas.drawRect(left, top, right, bottom, alphaFill)
+                canvas.drawRect(left, top, right, bottom, stroke)
 
-        if (width == 0f) {
 
-        }
+                if (debug.ids)
+                    canvas.drawText(
+                        "${it.id}: w:${it.width()} h:${it.height()} area:${it.area()}",
+                        left + 40,
+                        top + 80,
+                        black
+                    )
+            }
     }
 
     private fun dragGrid(
@@ -109,4 +117,10 @@ class ButtonsView : ViewGroup {
             canvas.drawLine(0f, r * hSize, width, r * hSize, greyStroke)
         }
     }
+
+    data class Debug(
+        val grid: Boolean = false,
+        val ids: Boolean = false,
+        val rects: Boolean = false
+    )
 }
