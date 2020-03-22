@@ -36,6 +36,11 @@ class ButtonsView : ViewGroup {
         textSize = 30f
     }
 
+    val greyStroke = Paint().apply {
+        style = Paint.Style.STROKE
+        color = Color.argb(0.5f, 0.5f, 0.5f, 0.7f)
+    }
+
     val stroke = Paint().apply {
         style = Paint.Style.STROKE
         color = Color.argb(0.5f, 0f, 0f, 0.5f)
@@ -46,15 +51,16 @@ class ButtonsView : ViewGroup {
         screenWidth = r
         screenHeight = b
 
-//        rows = screenHeight / minButtonHeight
-//        cols = screenWidth / minButtonWidth
-        rows = 5
-        cols = 5
+        rows = screenHeight / minButtonHeight
+        cols = screenWidth / minButtonWidth
+//        rows = 5
+//        cols = 5
 
 
         rects = MathUtils.generate(
             MathUtils.genMatrix(rows, cols, true),
-            Rect(0, 0, 4, 2)
+            Rect(0, 0, 4, 4),
+            Rect(0, 0, 1, 1)
         )
 
         if (rects.isEmpty()) {
@@ -65,11 +71,13 @@ class ButtonsView : ViewGroup {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        val width = canvas.width
-        val height = canvas.height
+        val width = canvas.width.toFloat()
+        val height = canvas.height.toFloat()
 
-        val wSize = width / (cols).toFloat()
-        val hSize = height / (rows).toFloat()
+        val wSize = width / (cols)
+        val hSize = height / (rows)
+
+        dragGrid(width, height, wSize, hSize, canvas)
 
         for ((index, it) in rects.withIndex()) {
             val left = it.left * wSize
@@ -78,11 +86,27 @@ class ButtonsView : ViewGroup {
             val bottom = it.bottom * hSize
             canvas.drawRect(left, top, right, bottom, alphaFill)
             canvas.drawRect(left, top, right, bottom, stroke)
-            canvas.drawText("${it.id}: w:${it.width()} h:${it.height()} area:${it.area()}", left + 40, top + 80, black)
+            //canvas.drawText("${it.id}: w:${it.width()} h:${it.height()} area:${it.area()}", left + 40, top + 80, black)
         }
 
-        if (width == 0) {
+        if (width == 0f) {
 
+        }
+    }
+
+    private fun dragGrid(
+        width: Float,
+        height: Float,
+        wSize: Float,
+        hSize: Float,
+        canvas: Canvas
+    ) {
+        for (c in 0..cols) {
+            canvas.drawLine(c * wSize, 0f, c * wSize, height, greyStroke)
+        }
+
+        for (r in 0..rows) {
+            canvas.drawLine(0f, r * hSize, width, r * hSize, greyStroke)
         }
     }
 }

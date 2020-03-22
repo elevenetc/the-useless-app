@@ -1,7 +1,5 @@
 package com.elevenetc.the.useless.app
 
-import android.util.Log
-
 
 object MathUtils {
 
@@ -16,7 +14,7 @@ object MathUtils {
         return list.toTypedArray()
     }
 
-    fun generate(m: Array<Array<Boolean>>, maxRect: Rect): Set<Rect> {
+    fun generate(m: Array<Array<Boolean>>, maxRect: Rect, minRect: Rect): Set<Rect> {
         val result = mutableSetOf<Rect>()
         val random = mutableSetOf<Rect>()
         var id = 0
@@ -24,7 +22,7 @@ object MathUtils {
             for ((col, free) in rows.withIndex()) {
                 if (free) {
                     random.clear()
-                    getAvailableRects(col, row, 1, 1, m, maxRect, random)
+                    getAvailableRects(col, row, 1, 1, m, maxRect, minRect, random)
 
                     if (random.isEmpty()) continue
 
@@ -36,6 +34,16 @@ object MathUtils {
         }
 
         //clearIntersected(result)
+
+        result.forEach { r ->
+            if (r.width() < minRect.width()) {
+                print("ZZZ: W")
+            }
+
+            if (r.height() < minRect.height()) {
+                print("ZZZ: H")
+            }
+        }
 
         return result
     }
@@ -107,7 +115,7 @@ object MathUtils {
                 if (cell.contains(col, row)) {
 
                     if (!m[row][col]) {
-                        Log.e("MATH", "over: $cell")
+                        //Log.e("MATH", "over: $cell")
                         return false
                     }
                 }
@@ -119,7 +127,7 @@ object MathUtils {
                 if (cell.contains(col, row)) {
 
                     if (!m[row][col]) {
-                        Log.e("MATH", "over: $cell")
+                        //Log.e("MATH", "over: $cell")
                     }
 
                     m[row][col] = false
@@ -137,6 +145,7 @@ object MathUtils {
         rSize: Int,
         m: Array<Array<Boolean>>,
         max: Rect,
+        min: Rect,
         result: MutableSet<Rect>
     ) {
         if (!m[r][c]) return
@@ -145,34 +154,46 @@ object MathUtils {
 
         val macCol = m[r].size
         val maxRow = m.size
-        val cSizeFit = c + cSize <= macCol
-        val rSizeFit = r + rSize <= maxRow
+        val width = c + cSize
+        val height = r + rSize
+        val minWidthFit = width >= min.width()
+        val minHeightFit = height >= min.height()
 
-        if (cSizeFit && m[r][c + cSize - 1]) {
-            val rect = Rect(c, r, c + cSize, r)
+        val cSizeFit = width <= macCol
+        val rSizeFit = height <= maxRow
+
+        if (cSizeFit && m[r][width - 1]) {
+
+            val rect = Rect(c, r, width, r)
             val exists = rect.area() > 0
-            if (exists) {
+            if (exists && rect.width() >= min.width() && rect.height() >= min.height()) {
                 result.add(rect)
             }
-            getAvailableRects(c, r, cSize + 1, rSize, m, max, result)
+
+            getAvailableRects(c, r, cSize + 1, rSize, m, max, min, result)
         }
 
-        if (rSizeFit && m[r + rSize - 1][c]) {
-            val rect = Rect(c, r, c, r + rSize)
+        if (rSizeFit && m[height - 1][c]) {
+
+            val rect = Rect(c, r, c, height)
             val exists = rect.area() > 0
-            if (exists) {
+            if (exists && rect.width() >= min.width() && rect.height() >= min.height()) {
                 result.add(rect)
             }
-            getAvailableRects(c, r, cSize, rSize + 1, m, max, result)
+
+
+            getAvailableRects(c, r, cSize, rSize + 1, m, max, min, result)
         }
 
-        if (cSizeFit && rSizeFit && m[r + rSize - 1][c + cSize - 1]) {
-            val rect = Rect(c, r, c + cSize, r + rSize)
+        if (cSizeFit && rSizeFit && m[height - 1][width - 1]) {
+
+            val rect = Rect(c, r, width, height)
             val exists = rect.area() > 0
-            if (exists) {
+            if (exists && rect.width() >= min.width() && rect.height() >= min.height()) {
                 result.add(rect)
             }
-            getAvailableRects(c, r, cSize + 1, rSize + 1, m, max, result)
+
+            getAvailableRects(c, r, cSize + 1, rSize + 1, m, max, min, result)
         }
     }
 

@@ -31,17 +31,7 @@ data class Rect(
     }
 
     override fun toString(): String {
-        val sb = StringBuilder(32)
-        sb.append("Rect(")
-        sb.append(left)
-        sb.append(", ")
-        sb.append(top)
-        sb.append(" - ")
-        sb.append(right)
-        sb.append(", ")
-        sb.append(bottom)
-        sb.append(")")
-        return sb.toString()
+        return "{l:$left, t:$top, r:$right, b:$bottom, width: ${width()}, height: ${height()}}"
     }
     /**
      * Return a string representation of the rectangle in a compact form.
