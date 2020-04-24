@@ -10,13 +10,14 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.core.view.children
 
+
 class ButtonsView : ViewGroup {
 
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
 
-    val debug = Debug()
-    //val debug = Debug(rects = true)
+    //    val debug = Debug()
+    val debug = Debug(rects = true)
 
     init {
         setBackgroundColor(Color.WHITE)
@@ -59,6 +60,8 @@ class ButtonsView : ViewGroup {
         val width = MeasureSpec.getSize(widthMeasureSpec)
         val height = MeasureSpec.getSize(heightMeasureSpec)
 
+        //measureChildren(widthMeasureSpec, heightMeasureSpec);
+
         if (!generated) {
             generated = true
             screenWidth = width
@@ -78,22 +81,62 @@ class ButtonsView : ViewGroup {
 
 
 
-            rects.forEach {
+            rects.forEach { rect ->
                 val b = Button(context)
-                val lp = LayoutParams(it.width(), it.height())
-                b.translationX = it.left.toFloat()
-                b.translationY = it.top.toFloat()
+                val w = rect.width() * minButtonWidth
+                val h = rect.height() * minButtonHeight
+                val x = rect.left * minButtonWidth
+                val y = rect.top * minButtonHeight
+                val lp = LayoutParams(w, h, x, y)
                 b.layoutParams = lp
                 addView(b)
             }
-            invalidate()
+            //invalidate()
         }
 
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        measureChildren(widthMeasureSpec, heightMeasureSpec);
+
+        val mPaddingLeft = 0
+        val mPaddingTop = 0
+        val mPaddingRight = 0
+        val mPaddingBottom = 0
+
+        var maxWidth = width
+        var maxHeight = height
+
+        // Account for padding too
+        maxWidth = mPaddingLeft + mPaddingRight;
+        maxHeight = mPaddingTop + mPaddingBottom;
+
+        // Check against minimum height and width
+        maxHeight = Math.max(maxHeight, suggestedMinimumHeight);
+        maxWidth = Math.max(maxWidth, suggestedMinimumWidth);
+
+        setMeasuredDimension(
+            resolveSizeAndState(maxWidth, widthMeasureSpec, 0),
+            resolveSizeAndState(maxHeight, heightMeasureSpec, 0)
+        );
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        val count = childCount
 
+        val mPaddingLeft = 0
+        val mPaddingTop = 0
+
+        for (i in 0 until count) {
+            val child = getChildAt(i)
+            if (child.visibility != View.GONE) {
+                val lp = child.layoutParams as LayoutParams
+                val childLeft: Int = mPaddingLeft + lp.x
+                val childTop: Int = mPaddingTop + lp.y
+                child.layout(
+                    childLeft, childTop,
+                    childLeft + child.measuredWidth,
+                    childTop + child.measuredHeight
+                )
+            }
+        }
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -164,4 +207,6 @@ class ButtonsView : ViewGroup {
         val ids: Boolean = false,
         val rects: Boolean = false
     )
+
+    class LayoutParams(width: Int, height: Int, var x: Int, var y: Int) : ViewGroup.LayoutParams(width, height)
 }
