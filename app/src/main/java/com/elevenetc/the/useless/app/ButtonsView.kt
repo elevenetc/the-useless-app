@@ -5,17 +5,22 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import androidx.core.view.children
 
 class ButtonsView : ViewGroup {
 
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
 
-    val debug = Debug(rects = true)
+    val debug = Debug()
+    //val debug = Debug(rects = true)
 
     init {
         setBackgroundColor(Color.WHITE)
+        setWillNotDraw(false)
     }
 
     val minButtonWidth = 180
@@ -48,30 +53,66 @@ class ButtonsView : ViewGroup {
         color = Color.argb(0.5f, 0f, 0f, 0.5f)
     }
 
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+    var generated = false
 
-        screenWidth = r
-        screenHeight = b
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val width = MeasureSpec.getSize(widthMeasureSpec)
+        val height = MeasureSpec.getSize(heightMeasureSpec)
 
-        rows = screenHeight / minButtonHeight
-        cols = screenWidth / minButtonWidth
+        if (!generated) {
+            generated = true
+            screenWidth = width
+            screenHeight = height
+
+            rows = screenHeight / minButtonHeight
+            cols = screenWidth / minButtonWidth
 //        rows = 5
 //        cols = 5
 
 
-        rects = MathUtils.generate(
-            MathUtils.genMatrix(rows, cols, true),
-            Rect(3, 2),
-            Rect(1, 1)
-        )
+            rects = MathUtils.generate(
+                MathUtils.genMatrix(rows, cols, true),
+                Rect(3, 2),
+                Rect(1, 1)
+            )
 
-        if (rects.isEmpty()) {
 
+
+            rects.forEach {
+                val b = Button(context)
+                val lp = LayoutParams(it.width(), it.height())
+                b.translationX = it.left.toFloat()
+                b.translationY = it.top.toFloat()
+                b.layoutParams = lp
+                addView(b)
+            }
+            invalidate()
         }
+
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+    }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+
+        val children = children
+
+        val action: (View) -> Unit = {
+            val visibility = it.visibility
+            if (visibility == View.VISIBLE) {
+
+            }
+        }
+        children.forEach(action)
+
+        val chC = childCount
+        if (chC == 0) {
+
+        }
 
         val width = canvas.width.toFloat()
         val height = canvas.height.toFloat()
